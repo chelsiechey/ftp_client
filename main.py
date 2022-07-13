@@ -1,11 +1,18 @@
 import ftplib
 from ftplib import FTP
-from secrets import password
+from os.path import exists
 
 host = 'localhost'
-user = 'chelsieconrad'
 
 with FTP(host) as ftp:
+    if exists('secrets.py'):
+        from secrets import password, user
+    else:
+        print('Please enter your username')
+        user = input()
+        print('Please enter your password')
+        password = input()
+
     ftp_response = ftp.login(user=user, passwd=password)
     print(ftp_response)
 
@@ -22,16 +29,5 @@ with FTP(host) as ftp:
     # Delete a file
     ftp_response = ftp.delete('upload.txt')
     print(ftp_response)
-
-    # Attempt to retrieve the deleted file
-    try:
-        with open('test.txt', 'wb') as f:
-            ftp.retrbinary('RETR ' + 'upload.txt', f.write, 1024)
-    except ftplib.all_errors as e:
-        if e.args[0][:3]:
-            print(e)
-            print('File not found')
-        else:
-            print(e)
 
     ftp.quit()
